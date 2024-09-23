@@ -23,9 +23,8 @@ def plot_marginal_1d(observed_df, synthetic_df, columns):
         assert c in observed_df.columns, "column not in observed data"
         assert c in synthetic_df.columns, "column not in synthetic data"
 
-    observed_df = observed_df.with_columns(pl.lit("observed").alias("data_source"))
-    synthetic_df = synthetic_df.with_columns(pl.lit("synthetic").alias("data_source"))
-    synthetic_df = synthetic_df[columns + ["data_source"]]
+    observed_df = observed_df[columns].with_columns(pl.lit("observed").alias("data_source"))
+    synthetic_df = synthetic_df[columns].with_columns(pl.lit("synthetic").alias("data_source"))
 
     data = pl.concat([observed_df, synthetic_df])
 
