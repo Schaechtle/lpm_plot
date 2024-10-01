@@ -23,8 +23,12 @@ def plot_marginal_1d(observed_df, synthetic_df, columns):
         assert c in observed_df.columns, "column not in observed data"
         assert c in synthetic_df.columns, "column not in synthetic data"
 
-    observed_df = observed_df[columns].with_columns(pl.lit("observed").alias("data_source"))
-    synthetic_df = synthetic_df[columns].with_columns(pl.lit("synthetic").alias("data_source"))
+    observed_df = observed_df[columns].with_columns(
+        pl.lit("observed").alias("data_source")
+    )
+    synthetic_df = synthetic_df[columns].with_columns(
+        pl.lit("synthetic").alias("data_source")
+    )
 
     data = pl.concat([observed_df, synthetic_df])
 
@@ -94,3 +98,55 @@ def plot_marginal_1d(observed_df, synthetic_df, columns):
         .properties(title="1-D Marginals")
     )
     return combined_chart
+
+
+def plot_marginal_2d(combined_df, x, y, hm_order=None, cmap="oranges"):
+    """
+    Plots 2D marginal heatmaps of normalized frequencies for categorical variables across multiple sources.
+
+    This function generates a series of 2D heatmaps (one per data source) that visualize the bivariate
+    frequencies of two categorical variables (`x` and `y`). The heatmaps are displayed side by side, sharing
+    the same color scale. The normalized frequency values are plotted using colored rectangles, where the
+    color intensity indicates the frequency.
+
+    Args:
+        combined_df (pl.DataFrame): A Polars DataFrame containing the combined data from different sources.
+            It must contain the columns specified by `x`, `y`, and a "Source" column, as well as a
+            "Normalized frequency" column with the frequencies.
+        x (str): The name of the first categorical column (horizontal axis of the heatmap).
+        y (str): The name of the second categorical column (vertical axis of the heatmap).
+        hm_order (list of str, optional): A custom order for the sources for the plot.
+        cmap (str, optional): The color map to be used for the heatmap. Defaults to "oranges". Can be
+            any valid Altair color scheme (e.g., "blues", "reds").
+
+    Returns:
+        alt.Chart: An Altair chart object containing the concatenated heatmaps, one for each source.
+    """
+    base = (
+        alt.Chart(combined_df.to_pandas())
+        .mark_rect()
+        .encode(
+            x=alt.X(f"{x}:N", title=f"{x}"),
+            y=alt.Y(f"{y}:N", title=f"{y}"),
+            color=alt.Color(
+                "Normalized frequency:Q",
+                scale=alt.Scale(scheme=cmap),
+                title="Normalized Count",
+            ),
+            tooltip=[x, y, "Normalized frequency:Q"],
+        )
+    )
+    # Check if users wanted to order the datasources.
+    if hm_order is None:
+        order = combined_df["Source"].unique()
+    else:
+        order = hm_order
+    heatmaps = [
+        base.transform_filter(alt.datum.Source == source).properties(title=source)
+        for source in order
+    ]
+    # Concatenate the heatmaps horizontally and ensure they share the color scale
+    combined_heatmap = alt.hconcat(*heatmaps).resolve_scale(
+        color="shared"  # Share the color scale between the heatmaps
+    )
+    return combined_heatmap
