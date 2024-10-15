@@ -77,7 +77,7 @@ def plot_marginal_1d(observed_df, synthetic_df, columns):
                     ),
                 ),
                 color=alt.value(color),
-            )
+            ).transform_filter(f"datum.{field} != null")  # Filter out null values
         )
 
     # Creating the charts for observed and synthetic collections
