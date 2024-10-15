@@ -13,6 +13,9 @@ altair = "^5.4.1"
 pandas = "^2.2.3" # Need pandas because of altair
 polars = "^1.7.1"
 pyarrow = "^17.0.0"
+vegafusion = "^1.6.9"
+vegafusion-python-embed = "^1.6.9"
+vl-convert-python = "^1.7.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"

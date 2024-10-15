@@ -4,6 +4,7 @@ import altair as alt
 OBSERVED_COLOR = "#000000"
 SYNTHETIC_COLOR = "#f28e2b"
 
+alt.data_transformers.enable("vegafusion")
 
 def get_max_frequency(column, data):
     # Group by `data_source` and the given `column`, then count occurrences
