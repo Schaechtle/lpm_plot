@@ -20,7 +20,7 @@ def plot_fidelity(fidelity_df, metric="tvd"):
         alt.Chart(fidelity_df_pandas)
         .mark_line(strokeDash=[STROKEDASH, STROKEDASH])
         .encode(
-            x=alt.X("index:O", axis=None),  # ordinal scale, no axis labels
+            x=alt.X("index:O"),  # ordinal scale, no axis labels
             y=alt.Y(f"{metric}:Q", title=METRICS.get(metric, metric)),
             color="model:N",
         )
